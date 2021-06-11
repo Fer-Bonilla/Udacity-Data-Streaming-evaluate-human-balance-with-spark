@@ -1,0 +1,76 @@
+Traceback (most recent call last):
+  File "/data/spark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 63, in deco
+  File "/data/spark/python/lib/py4j-0.10.7-src.zip/py4j/protocol.py", line 328, in get_return_value
+py4j.protocol.Py4JJavaError: An error occurred while calling o126.awaitTermination.
+: org.apache.spark.sql.streaming.StreamingQueryException: assertion failed: Concurrent update to the log. Multiple streaming jobs detected for 27
+=== Streaming Query ===
+Identifier: [id = 364a3583-1d61-4a3e-b38c-c9a581d3611d, runId = ac6980d9-0f79-43fa-b635-39b2c4a27206]
+Current Committed Offsets: {KafkaV2[Subscribe[stedi-events]]: {"stedi-events":{"0":530}},KafkaV2[Subscribe[redis-server]]: {"redis-server":{"0":797}}}
+Current Available Offsets: {KafkaV2[Subscribe[stedi-events]]: {"stedi-events":{"0":530}},KafkaV2[Subscribe[redis-server]]: {"redis-server":{"0":831}}}
+
+Current State: ACTIVE
+Thread State: RUNNABLE
+
+Logical Plan:
+Project [cast(customer#120 as string) AS key#140, structstojson(named_struct(customer, customer#120, score, score#121, email, email#83, birthYear, birthYear#92), Some(Etc/UTC)) AS value#141]
++- Join Inner, (customer#120 = email#83)
+   :- Project [customer#120, score#121]
+   :  +- SubqueryAlias `customerrisk`
+   :     +- Project [value#118.customer AS customer#120, value#118.score AS score#121, value#118.riskDate AS riskDate#122]
+   :        +- Project [jsontostructs(StructField(customer,StringType,true), StructField(score,DoubleType,true), StructField(riskDate,DateType,true), value#116, Some(Etc/UTC)) AS value#118]
+   :           +- Project [cast(value#103 as string) AS value#116]
+   :              +- StreamingExecutionRelation KafkaV2[Subscribe[stedi-events]], [key#102, value#103, topic#104, partition#105, offset#106L, timestamp#107, timestampType#108]
+   +- Project [email#83, split(birthDay#85, -)[0] AS birthYear#92]
+      +- Project [email#83, birthDay#85]
+         +- Filter (isnotnull(email#83) && isnotnull(birthDay#85))
+            +- SubqueryAlias `customerrecords`
+               +- Project [customer#78.customerName AS customerName#82, customer#78.email AS email#83, customer#78.phone AS phone#84, customer#78.birthDay AS birthDay#85]
+                  +- Project [key#25, encodedCustomer#71, jsontostructs(StructField(customerName,StringType,true), StructField(email,StringType,true), StructField(phone,StringType,true), StructField(birthDay,StringType,true), customer#74, Some(Etc/UTC)) AS customer#78]
+                     +- Project [key#25, encodedCustomer#71, cast(unbase64(encodedCustomer#71) as string) AS customer#74]
+                        +- Project [key#25, zSetEntries#29[0].element AS encodedCustomer#71]
+                           +- SubqueryAlias `redissortedset`
+                              +- Project [key#25, existType#26, ch#35, incr#41, zSetEntries#29, value#47, expiredType#54, cast(null as string) AS expiredValue#62]
+                                 +- Project [key#25, existType#26, ch#35, incr#41, zSetEntries#29, value#47, cast(null as string) AS expiredType#54]
+                                    +- Project [key#25, existType#26, ch#35, incr#41, zSetEntries#29, cast(null as string) AS value#47]
+                                       +- Project [key#25, existType#26, ch#35, Incr#28 AS incr#41, zSetEntries#29]
+                                          +- Project [key#25, existType#26, Ch#27 AS ch#35, Incr#28, zSetEntries#29]
+                                             +- Project [value#23.key AS key#25, value#23.existType AS existType#26, value#23.Ch AS Ch#27, value#23.Incr AS Incr#28, value#23.zSetEntries AS zSetEntries#29]
+                                                +- Project [jsontostructs(StructField(key,StringType,true), StructField(existType,StringType,true), StructField(Ch,BooleanType,true), StructField(Incr,BooleanType,true), StructField(zSetEntries,ArrayType(StructType(StructField(element,StringType,true), StructField(Score,DoubleType,true)),true),true), value#21, Some(Etc/UTC)) AS value#23]
+                                                   +- Project [cast(value#8 as string) AS value#21]
+                                                      +- StreamingExecutionRelation KafkaV2[Subscribe[redis-server]], [key#7, value#8, topic#9, partition#10, offset#11L, timestamp#12, timestampType#13]
+
+	at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:297)
+	at org.apache.spark.sql.execution.streaming.StreamExecution$$anon$1.run(StreamExecution.scala:193)
+Caused by: java.lang.AssertionError: assertion failed: Concurrent update to the log. Multiple streaming jobs detected for 27
+	at scala.Predef$.assert(Predef.scala:170)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch$1$$anonfun$apply$mcZ$sp$3.apply$mcV$sp(MicroBatchExecution.scala:382)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch$1$$anonfun$apply$mcZ$sp$3.apply(MicroBatchExecution.scala:381)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch$1$$anonfun$apply$mcZ$sp$3.apply(MicroBatchExecution.scala:381)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter$class.reportTimeTaken(ProgressReporter.scala:351)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:58)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch$1.apply$mcZ$sp(MicroBatchExecution.scala:381)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch$1.apply(MicroBatchExecution.scala:337)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch$1.apply(MicroBatchExecution.scala:337)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.withProgressLocked(MicroBatchExecution.scala:557)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.org$apache$spark$sql$execution$streaming$MicroBatchExecution$$constructNextBatch(MicroBatchExecution.scala:337)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1$$anonfun$apply$mcZ$sp$1.apply$mcV$sp(MicroBatchExecution.scala:183)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1$$anonfun$apply$mcZ$sp$1.apply(MicroBatchExecution.scala:166)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1$$anonfun$apply$mcZ$sp$1.apply(MicroBatchExecution.scala:166)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter$class.reportTimeTaken(ProgressReporter.scala:351)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:58)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1.apply$mcZ$sp(MicroBatchExecution.scala:166)
+	at org.apache.spark.sql.execution.streaming.ProcessingTimeExecutor.execute(TriggerExecutor.scala:56)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.runActivatedStream(MicroBatchExecution.scala:160)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:281)
+	... 1 more
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/workspace/sparkpykafkajoin.py", line 210, in <module>
+    .option("checkpointLocation", "/tmp/kafkacheckpoint2")\
+  File "/data/spark/python/lib/pyspark.zip/pyspark/sql/streaming.py", line 103, in awaitTermination
+  File "/data/spark/python/lib/py4j-0.10.7-src.zip/py4j/java_gateway.py", line 1257, in __call__
+  File "/data/spark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 75, in deco
+pyspark.sql.utils.StreamingQueryException: 'assertion failed: Concurrent update to the log. Multiple streaming jobs detected for 27\n=== Streaming Query ===\nIdentifier: [id = 364a3583-1d61-4a3e-b38c-c9a581d3611d, runId = ac6980d9-0f79-43fa-b635-39b2c4a27206]\nCurrent Committed Offsets: {KafkaV2[Subscribe[stedi-events]]: {"stedi-events":{"0":530}},KafkaV2[Subscribe[redis-server]]: {"redis-server":{"0":797}}}\nCurrent Available Offsets: {KafkaV2[Subscribe[stedi-events]]: {"stedi-events":{"0":530}},KafkaV2[Subscribe[redis-server]]: {"redis-server":{"0":831}}}\n\nCurrent State: ACTIVE\nThread State: RUNNABLE\n\nLogical Plan:\nProject [cast(customer#120 as string) AS key#140, structstojson(named_struct(customer, customer#120, score, score#121, email, email#83, birthYear, birthYear#92), Some(Etc/UTC)) AS value#141]\n+- Join Inner, (customer#120 = email#83)\n   :- Project [customer#120, score#121]\n   :  +- SubqueryAlias `customerrisk`\n   :     +- Project [value#118.customer AS customer#120, value#118.score AS score#121, value#118.riskDate AS riskDate#122]\n   :        +- Project [jsontostructs(StructField(customer,StringType,true), StructField(score,DoubleType,true), StructField(riskDate,DateType,true), value#116, Some(Etc/UTC)) AS value#118]\n   :           +- Project [cast(value#103 as string) AS value#116]\n   :              +- StreamingExecutionRelation KafkaV2[Subscribe[stedi-events]], [key#102, value#103, topic#104, partition#105, offset#106L, timestamp#107, timestampType#108]\n   +- Project [email#83, split(birthDay#85, -)[0] AS birthYear#92]\n      +- Project [email#83, birthDay#85]\n         +- Filter (isnotnull(email#83) && isnotnull(birthDay#85))\n            +- SubqueryAlias `customerrecords`\n               +- Project [customer#78.customerName AS customerName#82, customer#78.email AS email#83, customer#78.phone AS phone#84, customer#78.birthDay AS birthDay#85]\n                  +- Project [key#25, encodedCustomer#71, jsontostructs(StructField(customerName,StringType,true), StructField(email,StringType,true), StructField(phone,StringType,true), StructField(birthDay,StringType,true), customer#74, Some(Etc/UTC)) AS customer#78]\n                     +- Project [key#25, encodedCustomer#71, cast(unbase64(encodedCustomer#71) as string) AS customer#74]\n                        +- Project [key#25, zSetEntries#29[0].element AS encodedCustomer#71]\n                           +- SubqueryAlias `redissortedset`\n                              +- Project [key#25, existType#26, ch#35, incr#41, zSetEntries#29, value#47, expiredType#54, cast(null as string) AS expiredValue#62]\n                                 +- Project [key#25, existType#26, ch#35, incr#41, zSetEntries#29, value#47, cast(null as string) AS expiredType#54]\n                                    +- Project [key#25, existType#26, ch#35, incr#41, zSetEntries#29, cast(null as string) AS value#47]\n                                       +- Project [key#25, existType#26, ch#35, Incr#28 AS incr#41, zSetEntries#29]\n                                          +- Project [key#25, existType#26, Ch#27 AS ch#35, Incr#28, zSetEntries#29]\n                                             +- Project [value#23.key AS key#25, value#23.existType AS existType#26, value#23.Ch AS Ch#27, value#23.Incr AS Incr#28, value#23.zSetEntries AS zSetEntries#29]\n                                                +- Project [jsontostructs(StructField(key,StringType,true), StructField(existType,StringType,true), StructField(Ch,BooleanType,true), StructField(Incr,BooleanType,true), StructField(zSetEntries,ArrayType(StructType(StructField(element,StringType,true), StructField(Score,DoubleType,true)),true),true), value#21, Some(Etc/UTC)) AS value#23]\n                                                   +- Project [cast(value#8 as string) AS value#21]\n                                                      +- StreamingExecutionRelation KafkaV2[Subscribe[redis-server]], [key#7, value#8, topic#9, partition#10, offset#11L, timestamp#12, timestampType#13]\n'
