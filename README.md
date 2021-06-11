@@ -2,22 +2,16 @@
 
 Second project from Udacity's Data Streaming using spark streaming evaluate human balance.
 
+ - Project description
+ - Dependencies
+ - Running the project
+ - Results
+
 
 ## How to run?
 
 ### Running on your computer
 
-<pre><code>$ docker-compose up</code></pre>
-
-- Public Transit Status : http://localhost:8888
-- kafka : PLAINTEXT://localhost:9092,PLAINTEXT://localhost:9093,PLAINTEXT://localhost:9094
-- REST proxy : http://localhost:8082
-- Schema Registry : http://localhost:8081
-- Kafka Connect : http://localhost:8083
-- KSQL : http://localhost:8088
-- PostgreSQL : jdbc:postgresql://localhost:5432/cta
-  - username : cta_admin
-  - password : chicago
   
 ### Running the simulation
 
