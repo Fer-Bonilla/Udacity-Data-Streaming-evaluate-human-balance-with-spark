@@ -2,109 +2,37 @@
 
 Second project from Udacity's Data Streaming using spark streaming evaluate human balance.
 
- - Project description
- - Dependencies
- - Running the project
- - Results
+Project sections:
+
+- Problem understanding
+- Project structure
+- Implementation Architecture
+- Implementation
+- Model performance
+- Using the model
+
+## Problem understanding
+
+Complete the data flow from kafka streams to web app. The application development team was not able to complete the feature as the graph is currently not receiving any data. Because the graph is currently not receiving any data, you need to generate a new payload in a Kafka topic and make it available to the STEDI application to consume.
 
 
-## How to run?
+## Project structure
 
-### Running on your computer
+ - sparkpykafkajoin.py Python script
+ - sparkpyeventskafkastreamtoconsole.py Python script
+ - sparkpyrediskafkastreamtoconsole.py Python script
+ - log file from running the sparkpykafkajoin.py Python script in Spark: /home/workspace/spark/logs/kafkajoin.log
+ - log file from running the sparkpyeventskafkastreamtoconsole.py Python script in Spark: /home/workspace/spark/logs/eventstream.log
+ - log file from running the sparkpyrediskafkastreamtoconsole.py Python script in Spark: /home/workspace/spark/logs/redisstream.log
+ - stedi-application sub-folder In the Python script sparkpykafkajoin.py, including the /home/workspace/stedi-application/application.conf file
+ - log files from the Spark master and Spark worker: /home/workspace/spark/logs
 
-  
-### Running the simulation
+## Project feature required 
 
-#### Run producer:
+Your product manager has requested a graph that shows fall risk (will they fall and become injured?) for recent assessments. The development team has built a graph, which is ready to receive risk information from Kafka:
 
-1) cd producers
-2) virtualenv venv
-3) . venv/bin/activate
-4) pip install -r requirements.txt
-5) python simulation.py
+![image](https://user-images.githubusercontent.com/33405407/121740102-71ab3580-cab1-11eb-8ae0-e90065d139cb.png)
 
-#### Run faust stream processing application:
+## Data 
 
-1) cd consumers
-2) virtualenv venv
-3) . venv/bin/activate
-4) pip install -r requirements.txt
-5) faust -A faust_stream worker -l info
-
-#### Run KSQL creation script:
-
-1) cd consumers
-2) virtualenv venv
-3) . venv/bin/activate
-4) pip install -r requirements.txt
-5) python ksql.py
-
-#### Run consumer:
-
-1) cd consumers
-2) virtualenv venv
-3) . venv/bin/activate
-4) pip install -r requirements.txt
-5) python server.py
-
-
-## PROJECT SPECIFICATION
-
-### Kafka Producer
-
-Kafka topics are created with appropriate settings
-> Using the Kafka Topics CLI, topics appear for arrivals on each train line in addition to the turnstiles for each of those stations.
-
-Kafka messages are produced successfully
-> Using the Kafka Topics CLI, messages continuously appear for each station on the train line, for both arrivals and turnstile actions.
-
-All messages have an associated value schema
-> Using the Schema Registry API, a schema is visible for arrivals and turnstile events.
-
-### Kafka Consumer
-
-Messages are consumed from Kafka
-> Stations, status, and weather data appear and update in the Transit Status UI.
-
-Stations data is consumed from the beginning of the topic
-> All Blue, Green, and Red Line stations appear in the Transit Status UI.
-
-### Kafka REST Proxy
-
-Kafka REST Proxy successfully delivers messages to the Kafka Topic
-> Using the kafka-console-consumer, weather messages are visible in the weather topic and are regularly produced as the simulation runs.
-
-Messages produced to the Kafka REST Proxy include a value schema
-> Using the Kafka Schema Registry REST API, a schema is defined for the weather topic.
-
-### Kafka Connect
-
-Kafka Connect successfully loads Station data from Postgres to Kafka
-> Using the kafka-console-consumer, all stations defined in Postgres are visible in the stations topic.
-
-Kafka Connect is configured to define a Schema
-> Using the Kafka Connect REST API, the Kafka Connect configuration is configured to use JSON for both key and values.
-> Using the Schema Registry REST API, the schemas for stations key and value are visible.
-
-Kafka Connect is configured to load on an incrementing ID
-> Using the Kafka Connect REST API, the Kafka Connect configuration uses an incrementing ID, and the ID is configured to be stop_id.
-
-### Faust Streams
-
-The Faust application ingests data from the stations topic
-> A consumer group for Faust is created on the Kafka Connect Stations topic.
-
-Data is translated correctly from the Kafka Connect format to the Faust table format
-> Data is ingested in the Station format and is then transformed into the TransformedStation format.
-
-Transformed Station Data is Present for each Station ID in the Kafka Topic
-> A topic is present in Kafka with the output topic name the student supplied. Inspecting messages in the topic, every station ID is represented.
-
-### KSQL
-
-Turnstile topic is translated into a KSQL Table
-> Using the KSQL CLI, turnstile data is visible in the table TURNSTILE.
-
-Turnstile table is aggregated into a summary table
-> Using the KSQL CLI, verify that station IDs have an associated count column.
-
+The STEDI data science team has configured some real-time data sources using Kafka Connect. One of those data sources is Redis. When a customer is first assessed in the STEDI application, their record is added to a sorted set called Customer in Redis. Redis is configured as a Kafka source and whenever any data is saved to Redis (including Customer information), a payload is published to the Kafka topic called redis-server.
