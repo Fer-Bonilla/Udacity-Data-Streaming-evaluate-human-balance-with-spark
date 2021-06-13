@@ -6,10 +6,11 @@ Project sections:
 
 - Problem understanding
 - Project structure
-- Implementation Architecture
-- Implementation
-- Model performance
+- Project feature required 
+- Data used
+- Solution architeture
 - Using the model
+- output example
 
 ## Problem understanding
 
@@ -36,3 +37,9 @@ Your product manager has requested a graph that shows fall risk (will they fall 
 ## Data 
 
 The STEDI data science team has configured some real-time data sources using Kafka Connect. One of those data sources is Redis. When a customer is first assessed in the STEDI application, their record is added to a sorted set called Customer in Redis. Redis is configured as a Kafka source and whenever any data is saved to Redis (including Customer information), a payload is published to the Kafka topic called redis-server.
+
+## output example
+
+![image](https://user-images.githubusercontent.com/33405407/121740102-71ab3580-cab1-11eb-8ae0-e90065d139cb.png)
+
+![image](https://user-images.githubusercontent.com/33405407/121740102-71ab3580-cab1-11eb-8ae0-e90065d139cb.png)
