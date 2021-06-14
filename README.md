@@ -40,6 +40,6 @@ The STEDI data science team has configured some real-time data sources using Kaf
 
 ## output example
 
-![image](https://user-images.githubusercontent.com/33405407/121740102-71ab3580-cab1-11eb-8ae0-e90065d139cb.png)
+![image](https://github.com/Fer-Bonilla/Udacity-Data-Streaming-evaluate-human-balance-with-spark/blob/main/screenshots/sample1.png)
 
-![image](https://user-images.githubusercontent.com/33405407/121740102-71ab3580-cab1-11eb-8ae0-e90065d139cb.png)
+![image](https://github.com/Fer-Bonilla/Udacity-Data-Streaming-evaluate-human-balance-with-spark/blob/main/screenshots/sample2.png)
